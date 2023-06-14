@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 
 
 
+
 load_dotenv('.env')
 
 app = FastAPI()
@@ -34,9 +35,9 @@ app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
 
 
 @app.get("/", response_class=HTMLResponse)
-async def home():
+async def home(request: Request):
    return templates.TemplateResponse("index.html", 
-            {"data":["One","two","three"]})  
+            {"request": request, "data":["One","two","three"]})  
 
 
 @app.post('/book/', response_model=SchemaBook)
