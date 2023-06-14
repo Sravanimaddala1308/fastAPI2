@@ -2,6 +2,8 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from typing import Optional, Union
+from fastapi.staticfiles import StaticFiles
 
 # from fastapi import FastAPI
 from fastapi_sqlalchemy import DBSessionMiddleware, db
@@ -24,19 +26,17 @@ load_dotenv('.env')
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # to avoid csrftokenError
 app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
 
-@app.get("/")
-async def root():
-   return {"message": "hello world"}
 
-@app.get("/index/", response_class=HTMLResponse)
-async def get_html():
-    with open("index.html") as file:
-        html_content = file.read()
-    return html_content
+@app.get("/", response_class=HTMLResponse)
+async def home():
+   return templates.TemplateResponse("index.html", 
+            {"data":["One","two","three"]})  
 
 
 @app.post('/book/', response_model=SchemaBook)
